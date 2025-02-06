@@ -26,7 +26,7 @@ export default function Assignments() {
             </div>
             <div className="col">
               <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kanbas/Courses/1234/Assignments/123">
+                href="#/Kambaz/Courses/1234/Assignments/123">
                 <h5><b>A1 - ENV + HTML</b></h5>
               </a>
               <p>
@@ -50,7 +50,7 @@ export default function Assignments() {
             </div>
             <div className="col">
               <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kanbas/Courses/1234/Assignments/123">
+                href="#/Kambaz/Courses/1234/Assignments/123">
                 <h5><b>A2 - CSS + BOOTSTARP</b></h5>
               </a>
               <p>
@@ -74,7 +74,7 @@ export default function Assignments() {
             </div>
             <div className="col">
               <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kanbas/Courses/1234/Assignments/123">
+                href="#/Kambaz/Courses/1234/Assignments/123">
                 <h5><b> A3 - JAVASCRIPT + REACT</b></h5>
               </a>
               <p>
