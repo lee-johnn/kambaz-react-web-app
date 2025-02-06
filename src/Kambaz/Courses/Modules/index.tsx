@@ -1,7 +1,6 @@
 import ModulesControls from "./ModulesControls";
 import LessonControlButtons from "./LessonControlButtons";
 import { BsGripVertical } from "react-icons/bs";
-import { LiaLandmarkSolid } from "react-icons/lia";
 import ModuleControlButtons from "./ModuleControlButtons";
 export default function Modules() {
   return (
