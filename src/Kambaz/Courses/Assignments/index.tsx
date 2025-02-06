@@ -1,62 +1,93 @@
-export const Assignments = () => {
-    return (
-      <div id="wd-assignments">
-        <input placeholder="Search for Assignments" id="wd-search-assignment" />
-        <button id="wd-add-assignment-group">+ Group</button>
-        <button id="wd-add-assignment">+ Assignment</button>
-        <h3 id="wd-assignments-title">
-          ASSIGNMENTS 40% of Total <button>+</button>
-        </h3>
-        <ul id="wd-assignment-list">
-          <li className="wd-assignment-list-item">
-            <a
-              href="#/Kambaz/Courses/1234/Assignments/123"
-              className="wd-assignment-link"
-            >
-              A1 - ENV + HTML
-            </a>
-            <br />
-            <span>
-              Multiple Modules | <b>Not available until</b> May 6 at 12:00am |
-            </span>
-            <br />
-            <span>
-              <b>Due</b> May 13 at 11:59pm | 100 pts
-            </span>
-          </li>
-          <li className="wd-assignment-list-item">
-            <a
-              href="#/Kambaz/Courses/1234/Assignments/123"
-              className="wd-assignment-link"
-            >
-              A2 - CSS + BOOTSTRAP
-            </a>
-            <br />
-            <span>
-              Multiple Modules | <b>Not available until</b> May 13 at 12:00am |
-            </span>
-            <br />
-            <span>
-              <b>Due</b> May 20 at 11:59pm | 100 pts
-            </span>
-          </li>
-          <li className="wd-assignment-list-item">
-            <a
-              href="#/Kambaz/Courses/1234/Assignments/123"
-              className="wd-assignment-link"
-            >
-              A3 - JAVASCRIPT + REACT
-            </a>
-            <br />
-            <span>
-              Multiple Modules | <b>Not available until</b> May 20 at 12:00am |
-            </span>
-            <br />
-            <span>
-              <b>Due</b> May 27 at 11:59pm | 100 pts
-            </span>
-          </li>
-        </ul>
-      </div>
-    );
-  };
+import AssignmentsControls from "./AssignmentControls";
+import { BsGripVertical } from "react-icons/bs";
+import AssignmentControlButtons from "./AssignmentControlButtons";
+import { BiCaretDown, BiEdit } from "react-icons/bi";
+import LessonControlButtons from "../Modules/LessonControlButtons";
+
+export default function Assignments() {
+  return (
+    <div id="wd-assignments">
+      <AssignmentsControls />
+      <ul id="wd-assignment-list" className="list-group rounded-0 my-4">
+        <div className="wd-title p-3 ps-2 bg-secondary mb-4">
+          <BsGripVertical className="me-2 fs-3" />
+          <BiCaretDown className="me-2" />
+          Assignments
+          <AssignmentControlButtons />
+        </div>
+
+        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <BsGripVertical className="fs-4" />
+            </div>
+            <div className="col-auto">
+              <BiEdit className="text-success fs-4" />
+            </div>
+            <div className="col">
+              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
+                href="#/Kanbas/Courses/1234/Assignments/123">
+                <h5><b>A1 - ENV + HTML</b></h5>
+              </a>
+              <p>
+                <span className="text-danger"> Multiple Modules </span>
+                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
+                11:59pm|100 pts</p>
+            </div>
+            <div className="col float-end">
+              <LessonControlButtons />
+            </div>
+          </div>
+        </li>
+
+        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <BsGripVertical className="fs-4" />
+            </div>
+            <div className="col-auto">
+              <BiEdit className="text-success fs-4" />
+            </div>
+            <div className="col">
+              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
+                href="#/Kanbas/Courses/1234/Assignments/123">
+                <h5><b>A2 - CSS + BOOTSTARP</b></h5>
+              </a>
+              <p>
+                <span className="text-danger"> Multiple Modules </span>
+                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
+                11:59pm|100 pts</p>
+            </div>
+            <div className="col float-end">
+              <LessonControlButtons />
+            </div>
+          </div>
+        </li>
+
+        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
+          <div className="row align-items-center">
+            <div className="col-auto">
+              <BsGripVertical className="fs-4" />
+            </div>
+            <div className="col-auto">
+              <BiEdit className="text-success fs-4" />
+            </div>
+            <div className="col">
+              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
+                href="#/Kanbas/Courses/1234/Assignments/123">
+                <h5><b> A3 - JAVASCRIPT + REACT</b></h5>
+              </a>
+              <p>
+                <span className="text-danger"> Multiple Modules </span>
+                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
+                11:59pm|100 pts</p>
+            </div>
+            <div className="col float-end">
+              <LessonControlButtons />
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  );
+}

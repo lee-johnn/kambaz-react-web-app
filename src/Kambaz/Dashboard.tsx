@@ -1,24 +1,58 @@
+import { Button, Card, Col, Row } from "react-bootstrap";
 import { Link } from "react-router-dom";
+
+// import { Link } from "react-router-dom";
 export default function Dashboard() {
   return (
+
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
-      <h2 id="wd-dashboard-published">Published Courses (12)</h2> <hr />
+      <h2 id="wd-dashboard-published">Published Courses (3)</h2> <hr />
       <div id="wd-dashboard-courses">
-        <div className="wd-dashboard-course">
-          <Link to="/Kambaz/Courses/1234/Home"
-                className="wd-dashboard-course-link" >
-            <img src="/images/reactjs.jpg" width={200} />
-            <div>
-              <h5> CS1234 React JS </h5>
-              <p className="wd-dashboard-course-title">
-                Full Stack software developer  </p>
-              <button> Go </button>
-            </div>
-          </Link>
-        </div>
-        <div className="wd-dashboard-course"> ... </div>
-        <div className="wd-dashboard-course"> ... </div>
+        <Row xs={1} md={5} className="g-4">
+          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+            <Card>
+              <Link to="/Kambaz/Courses/1234/Home"
+                className="wd-dashboard-course-link text-decoration-none text-dark">
+                <Card.Img variant="top" src="/images/reactjs.jpg" width="100%" height={160} />
+                <Card.Body>
+                  <Card.Title className="wd-dashboard-course-title">CS1234 React JS</Card.Title>
+                  <Card.Text className="wd-dashboard-course-description">Full Stack software developer</Card.Text>
+                  <Button variant="primary">Go</Button>
+                </Card.Body>
+              </Link>
+            </Card>
+          </Col>
+
+          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+            <Card>
+              <Link to="/Kambaz/Courses/2000/Home"
+                className="wd-dashboard-course-link text-decoration-none text-dark">
+                <Card.Img variant="top" src="/images/chewy.png" width="100%" height={160} />
+                <Card.Body>
+                  <Card.Title className="wd-dashboard-course-title">CHEW2000 Intro to Chewy</Card.Title>
+                  <Card.Text className="wd-dashboard-course-description">Learn about the Chewy company</Card.Text>
+                  <Button variant="primary">Go</Button>
+                </Card.Body>
+              </Link>
+            </Card>
+          </Col>
+
+
+          <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+            <Card>
+              <Link to="/Kambaz/Courses/3000/Home"
+                className="wd-dashboard-course-link text-decoration-none text-dark">
+                <Card.Img variant="top" src="/images/hubspot.png" width="100%" height={160} />
+                <Card.Body>
+                  <Card.Title className="wd-dashboard-course-title">HUBS3000 Intro to HubSpot CRM</Card.Title>
+                  <Card.Text className="wd-dashboard-course-description">What is HubSpot all about?</Card.Text>
+                  <Button variant="primary">Go</Button>
+                </Card.Body>
+              </Link>
+            </Card>
+          </Col>
+        </Row>
       </div>
-    </div>
-);}
+    </div>);
+}
