@@ -1,93 +1,73 @@
-import AssignmentsControls from "./AssignmentControls";
-import { BsGripVertical } from "react-icons/bs";
-import AssignmentControlButtons from "./AssignmentControlButtons";
-import { BiCaretDown, BiEdit } from "react-icons/bi";
+import { Container, ListGroup } from "react-bootstrap";
+import { Link, useParams } from "react-router-dom";
+import {
+  BsGripVertical,
+  BsFillCaretDownFill,
+  BsFillClipboardCheckFill,
+} from "react-icons/bs";
+import AssignmentControls from "./AssignmentControls";
 import LessonControlButtons from "../Modules/LessonControlButtons";
+import AssignmentControlButtons from "./AssignmentControlButtons";
+import * as db from "../../Database";
 
 export default function Assignments() {
+  const { cid } = useParams();
+  const assignments = db.assignments;
   return (
     <div id="wd-assignments">
-      <AssignmentsControls />
-      <ul id="wd-assignment-list" className="list-group rounded-0 my-4">
-        <div className="wd-title p-3 ps-2 bg-secondary mb-4">
-          <BsGripVertical className="me-2 fs-3" />
-          <BiCaretDown className="me-2" />
-          Assignments
-          <AssignmentControlButtons />
-        </div>
-
-        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
-          <div className="row align-items-center">
-            <div className="col-auto">
-              <BsGripVertical className="fs-4" />
-            </div>
-            <div className="col-auto">
-              <BiEdit className="text-success fs-4" />
-            </div>
-            <div className="col">
-              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kambaz/Courses/1234/Assignments/123">
-                <h5><b>A1 - ENV + HTML</b></h5>
-              </a>
-              <p>
-                <span className="text-danger"> Multiple Modules </span>
-                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
-                11:59pm|100 pts</p>
-            </div>
-            <div className="col float-end">
-              <LessonControlButtons />
-            </div>
+      <AssignmentControls />
+      <br /> <br />
+      <ListGroup className="rounded-0" id="wd-modules">
+        <ListGroup.Item className="wd-module p-0 mb-5 fs-5 border-gray">
+          <div className="wd-title p-3 ps-2 bg-secondary">
+            <BsGripVertical className="me-2 fs-3" />
+            <BsFillCaretDownFill />
+            ASSIGNMENTS <AssignmentControlButtons />
           </div>
-        </li>
 
-        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
-          <div className="row align-items-center">
-            <div className="col-auto">
-              <BsGripVertical className="fs-4" />
-            </div>
-            <div className="col-auto">
-              <BiEdit className="text-success fs-4" />
-            </div>
-            <div className="col">
-              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kambaz/Courses/1234/Assignments/123">
-                <h5><b>A2 - CSS + BOOTSTARP</b></h5>
-              </a>
-              <p>
-                <span className="text-danger"> Multiple Modules </span>
-                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
-                11:59pm|100 pts</p>
-            </div>
-            <div className="col float-end">
-              <LessonControlButtons />
-            </div>
-          </div>
-        </li>
+          <ListGroup className="wd-lessons rounded-0">
+            {assignments
+              .filter((assignment) => assignment.course === cid)
+              .map((assignment) => (
+                <ListGroup.Item
+                  key={assignment._id}
+                  className="wd-lesson p-3 ps-1"
+                >
+                  <div className="d-flex align-items-center gap-2">
+                    <BsGripVertical className="me-2 fs-3" />
+                    <BsFillClipboardCheckFill className="me-2 fs-3 text-success" />
 
-        <li className="wd-assignment-list-item list-group-item p-3" style={{ borderLeft: "4px solid green" }}>
-          <div className="row align-items-center">
-            <div className="col-auto">
-              <BsGripVertical className="fs-4" />
-            </div>
-            <div className="col-auto">
-              <BiEdit className="text-success fs-4" />
-            </div>
-            <div className="col">
-              <a className="wd-assignment-link text-dark link-underline link-underline-opacity-0"
-                href="#/Kambaz/Courses/1234/Assignments/123">
-                <h5><b> A3 - JAVASCRIPT + REACT</b></h5>
-              </a>
-              <p>
-                <span className="text-danger"> Multiple Modules </span>
-                | <b>Not available until</b> May 6 at 12:00am | <b>Due</b> May 13at
-                11:59pm|100 pts</p>
-            </div>
-            <div className="col float-end">
-              <LessonControlButtons />
-            </div>
-          </div>
-        </li>
-      </ul>
+                    <Container className="mt-3">
+                      <h3>
+                        <Link
+                          to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                          className="text-decoration-none"
+                        >
+                          {assignment._id}
+                        </Link>
+                      </h3>
+
+                      <div className="d-flex flex-wrap align-items-center gap-2">
+                        <div className="text-danger">Multiple Modules</div>
+                        <div>
+                          {" "}
+                          | <b>Not Available until </b> {assignment.available} | {" "}
+                        </div>
+                        <div>
+                          {" "}
+                          <b>Due </b> {assignment.due}{" "}
+                        </div>
+                        <div> | 100pts </div>
+                      </div>
+                    </Container>
+
+                    <LessonControlButtons />
+                  </div>
+                </ListGroup.Item>
+              ))}
+          </ListGroup>
+        </ListGroup.Item>
+      </ListGroup>
     </div>
   );
 }
