@@ -1,114 +1,119 @@
-import { useLocation, useParams } from "react-router";
-import { assignments } from "../../Database";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Button, Form } from "react-bootstrap";
+import { useParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { addAssignment, updateAssignment } from "./reducer";
 
-export default function AssignmentEditor() {
+export default function AssignmentEditor()  {
     const { cid } = useParams();
-    const { pathname } = useLocation();
+    const { aid } = useParams();
+    const dispatch = useDispatch();
+    
+    const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+    
+    const [assignment, setAssignment] = useState({
+      title: "New Assignment123",
+      description: "New Assignment Description",
+      points: 100,
+      due: "2020-01-01",
+      available: "2020-01-01",
+      course: cid,
+    });
 
-    const aid = pathname.split("/").pop();
-    const assignment = assignments.find(a => a._id === aid);
+    const save = () => {
+      if (aid === "New") {
+        dispatch(addAssignment(assignment));
+      } else {
+        dispatch(updateAssignment(assignment));
+      }
+    }
 
-    // State for handling date inputs with both date and time
-    const [dueDate, setDueDate] = useState(assignment?.due || "");
-    const [availableFrom, setAvailableFrom] = useState(assignment?.available || "");
-    const [availableUntil, setAvailableUntil] = useState("");
-
+    const update_values = (e: any) => {
+      const { field, value } = e.target;
+      setAssignment(prevState => ({
+        ...prevState,
+        [field]: value
+      }))
+    }
+    
+    useEffect(() => {
+      if (aid !== "New") {
+        const a = assignments.find((a: any) => a._id === aid);
+        setAssignment(a);
+      }
+    })
     return (
-        <div id="wd-assignments-editor">
-            <div className="container">
-                <div className="row input-group mb-2">
-                    <label htmlFor="wd-name" className="form-label">Assignment Name</label>
-                    <input id="wd-name" className="form-control" value={assignment?.title} />
-                </div>
-
-                <div className="row input-group mb-2">
-                    <textarea
-                        id="wd-description"
-                        className="form-control"
-                        rows={10}
-                        cols={60}
-                        defaultValue={assignment?.description}
-                    />
-                </div>
-
-                <div className="row mb-2">
-                    <div className="col-3">
-                        <label htmlFor="wd-points" className="col-form-label float-end">Points</label>
-                    </div>
-                    <div className="col">
-                        <input id="wd-points" type="number" className="form-control" value={assignment?.points} />
-                    </div>
-                </div>
-
-                <div className="row mb-2">
-                    <div className="col-3">
-                        <label htmlFor="wd-assign" className="col-form-label float-end">Assign</label>
-                    </div>
-                    <div className="col">
-                        <div className="card">
-                            <div className="card-body">
-                                <div className="row">
-                                    <label htmlFor="wd-assign-to" className="form-label"><b>Assign to</b></label>
-                                    <div className="input-group">
-                                        <input id="wd-assign-to" type="text" className="form-control" />
-                                    </div>
-                                </div>
-                                <div className="row mt-4">
-                                    <div className="col">
-                                        <label htmlFor="wd-due-date"><b>Due</b></label>
-                                        <input
-                                            id="wd-due-date"
-                                            type="datetime-local"
-                                            className="form-control"
-                                            value={dueDate}
-                                            onChange={(e) => setDueDate(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="row mt-2">
-                                    <div className="col-6">
-                                        <label htmlFor="wd-available-from"><b>Available from</b></label>
-                                        <input
-                                            id="wd-available-from"
-                                            type="datetime-local"
-                                            className="form-control"
-                                            value={availableFrom}
-                                            onChange={(e) => setAvailableFrom(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="col-6">
-                                        <label htmlFor="wd-available-until"><b>Until</b></label>
-                                        <input
-                                            id="wd-available-until"
-                                            type="datetime-local"
-                                            className="form-control"
-                                            value={availableUntil}
-                                            onChange={(e) => setAvailableUntil(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row mt-3">
-                    <hr />
-                </div>
-
-                <div className="mb-2">
-                    <Link key={'save'} to={`/Kambaz/Courses/${cid}/Assignments`}>
-                        <input type="button" className="btn btn-danger float-end ms-2" value="Save" />
-                    </Link>
-                    <Link key={'cancel'} to={`/Kambaz/Courses/${cid}/Assignments`}>
-                        <input type="button" className="btn btn-secondary float-end" value="Cancel" />
-                    </Link>
-                </div>
-
-                <div className="row" style={{ height: '30px', width: '100%' }}></div>
-            </div>
-        </div>
-    )
-}
+      <Form id="wd-assignments-editor">
+        <label htmlFor="wd-name"><h5>Assignment Name</h5></label>
+        <Form.Control style={{ width: 600 }} id="wd-name" className="mb-2" value={assignment.title} onChange={update_values}/>
+        <Form.Control style={{ width: 600, height: 400 }} as="textarea" id="wd-description" defaultValue="The assignment is available online Submit a link to the landing page of your Web application running on Netlify. The landing page should include the following: Your full name and section Links to each of the lab assignments Link to the Kambas application Links to all relevant source code repositories The Kambas application should include a link to navigate back to the landing page" value={assignment?.description} />
+        <br/>
+        <Form.Group className="d-flex align-items-center">
+          <Form.Label className="mr-3" style={{paddingRight: '20px', paddingLeft: '205px' }} htmlFor="wd-points">Points</Form.Label>
+          <Form.Control style={{ width: 300 }} id="wd-points" defaultValue={100} value={assignment?.points} />
+        </Form.Group>
+        <br/>
+        <Form.Group className="d-flex align-items-center">
+          <Form.Label className="mr-3" style={{paddingRight: '20px', paddingLeft: '120px' }} htmlFor="wd-group">Assignment Group</Form.Label>
+          <Form.Select style={{ width: 300 }} id="wd-group">
+            <option>ASSIGNMENTS</option>
+          </Form.Select>
+        </Form.Group>
+        <br/>
+        <Form.Group className="d-flex align-items-center">
+          <Form.Label className="mr-3" style={{paddingRight: '20px', paddingLeft: '130px' }} htmlFor="wd-grade-as">Display Grade as</Form.Label>
+          <Form.Select style={{ width: 300 }} id="wd-grade-as">
+            <option>Percentage</option>
+          </Form.Select>
+        </Form.Group>
+        <br/>
+        <Form.Group>
+          <Form.Group className="d-flex align-items-center">
+            <Form.Label className="mr-3" style={{paddingRight: '20px', paddingLeft: '130px' }} htmlFor="wd-submission-type">Submission Type</Form.Label>
+            <Form.Select style={{ width: 300 }} id="wd-submission-type">
+                <option>Online</option>
+              </Form.Select>
+            
+          </Form.Group>
+        <br />
+          <Form.Group style={{ paddingLeft: '280px' }}>
+            
+            <Form.Label>Online Entry Options</Form.Label>
+            <Form.Check type="checkbox" label="Text Entry" />
+            <Form.Check type="checkbox" label="Website URL" />
+            <Form.Check type="checkbox" label="Media Recordings" />
+            <Form.Check type="checkbox" label="Student Annotation" />
+            <Form.Check type="checkbox" label="File Uploads" />
+          </Form.Group>
+        </Form.Group>
+        <br/>
+        <Form.Group>
+          <Form.Group className="d-flex align-items-center">
+            <Form.Label className="mr-3" style={{paddingRight: '20px', paddingLeft: '205px' }}>Assign</Form.Label>
+            <Form.Label htmlFor="wd-assign-to"><b>Assign to</b></Form.Label>
+          </Form.Group>
+            <Form.Group style={{ paddingLeft: '280px' }}>
+              <Form.Control style={{ width: 300 }} id="wd-assign-to" defaultValue="Everyone" />
+              <br />
+              <Form.Label htmlFor="wd-due-date"><b>Due</b></Form.Label>
+              <Form.Control type="date" style={{ width: 300 }} id="wd-due-date" value={assignment?.due} />
+              <br />
+              <Form.Group className="d-flex align-items-center">
+                <Form.Label htmlFor="wd-available-from" style={{ paddingRight: '35px' }}><b>Available From</b></Form.Label>
+                <Form.Label htmlFor="wd-available-until"><b>Until</b></Form.Label>
+              </Form.Group>
+              <Form.Group className="d-flex align-items-center">
+                <Form.Control type="date" style={{ width: 150 }} id="wd-available-from" defaultValue={assignment?.available} />
+                <Form.Control type="date" style={{ width: 150 }} id="wd-available-until" />
+              </Form.Group>
+            </Form.Group>
+        </Form.Group>
+        <br />
+        <hr />
+        <Form.Group className="d-flex align-items-center" style={{ paddingLeft: '470px'}}>
+          <Button href={`#/Kambaz/Courses/${cid}/Assignments`} variant="light" size="sm">Cancel</Button>
+          <Button href={`#/Kambaz/Courses/${cid}/Assignments`} variant="danger" size="sm" onClick={save}>Save</Button>
+        </Form.Group>
+      </Form>
+  );}
+  

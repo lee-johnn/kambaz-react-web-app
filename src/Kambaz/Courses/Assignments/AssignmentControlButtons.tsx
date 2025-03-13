@@ -1,12 +1,24 @@
 import { IoEllipsisVertical } from "react-icons/io5";
-import { FaPlus } from "react-icons/fa6";
+import GreenCheckmark from "../Modules/GreenCheckmark";
+import { useDispatch } from "react-redux";
+import { FaTrash } from "react-icons/fa";
+import { deleteAssignment } from "./reducer";
 
-export default function AssignmentControlButtons() {
+export default function AssignmentControlButtons({ assignmentId }: {assignmentId: any;}) {
+    const dispatch = useDispatch();
+
     return (
         <div className="float-end">
-            <button type="button" className="btn btn-light btn-sm me-2" style={{ borderRadius: '20px' }}>40% of Total</button>
-            <FaPlus />
+            <GreenCheckmark />
             <IoEllipsisVertical className="fs-4" />
+            <FaTrash className="text-danger me-2 mb-1" onClick={(e) => {
+                e.preventDefault();
+                const check = window.confirm(
+                    "Are you sure you want to delete this assignment?"
+                );
+                if (check) {
+                    dispatch(deleteAssignment(assignmentId));
+                }
+            }}/>
         </div>
-    );
-}
+    );}
