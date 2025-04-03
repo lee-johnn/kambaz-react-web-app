@@ -35,6 +35,7 @@ export default function ModuleEditor({
           variant="danger"
           onClick={() => {
             addModule();
+            setModuleName("");
             handleClose();
           }}
         >
