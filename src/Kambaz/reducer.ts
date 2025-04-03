@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
-import { enrollments } from "./Database";
 const initialState = {
   enrollments: [],
 };

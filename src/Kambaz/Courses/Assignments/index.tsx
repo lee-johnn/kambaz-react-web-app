@@ -7,16 +7,16 @@ import { LuNotebookPen } from "react-icons/lu";
 import { FaCaretDown } from "react-icons/fa";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, /* useState */} from "react";
 import * as coursesClient from "../client";
-import * as modulesClient from "./client";
+// import * as modulesClient from "./client";
 import { setAssignments } from "./reducer";
 
 export default function Assignments() {
   const dispatch = useDispatch();
   const { cid } = useParams();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  // const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   const fetchAssignments = async () => {
     try {
