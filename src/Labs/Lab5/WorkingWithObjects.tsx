@@ -1,75 +1,138 @@
-import  { useState } from "react";
+import { useState } from "react";
+import { Form, FormControl } from "react-bootstrap";
 const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export default function WorkingWithObjects() {
-    const [assignment, setAssignment] = useState({
-        id: 1, title: "NodeJS Assignment",
-        description: "Create a NodeJS server with ExpressJS",
-        due: "2021-10-10", completed: false, score: 100,
-    });
-    const [module, setModule] = useState({
-        id: 'm1', name: 'Web Development1',
-        description: 'Create websites',
-        course: 'm101'
-    });
-      
-    const ASSIGNMENT_API_URL = `${REMOTE_SERVER}/lab5/assignment`
-    const MODULE_API_URL = `${REMOTE_SERVER}/lab5/module`
+  const [assignment, setAssignment] = useState({
+    id: 1,
+    title: "NodeJS Assignment",
+    description: "Create a NodeJS server with ExpressJS",
+    due: "2021-10-10",
+    completed: false,
+    score: 0,
+  });
+  const [module, setModule] = useState({
+    id: 1,
+    name: "NodeJS",
+    description: "NodeJS and ExpressJS",
+    course: "CS572",
+  });
+  const ASSIGNMENT_API_URL = `${REMOTE_SERVER}/lab5/assignment`;
+  const MODULE_API_URL = `${REMOTE_SERVER}/lab5/module`;
   return (
     <div id="wd-working-with-objects">
       <h3>Working With Objects</h3>
+      <h4>Retrieving Objects</h4>
+      <a
+        id="wd-retrieve-assignments"
+        className="btn btn-primary me-2"
+        href={`${REMOTE_SERVER}/lab5/assignment`}
+      >
+        Get Assignment
+      </a>
+      <a
+        id="wd-retrieve-module"
+        className="btn btn-primary"
+        href={`${REMOTE_SERVER}/lab5/module`}
+      >
+        Get Module
+      </a>
+      <hr />
+      <h4>Retrieving Properties</h4>
+      <a
+        id="wd-retrieve-assignment-title"
+        className="btn btn-primary me-2"
+        href={`${REMOTE_SERVER}/lab5/assignment/title`}
+      >
+        Get Title
+      </a>
+      <a
+        id="wd-retrieve-module-name"
+        className="btn btn-primary"
+        href={`${REMOTE_SERVER}/lab5/module/name`}
+      >
+        Get Module Name
+      </a>
+      <hr />
       <h4>Modifying Properties</h4>
-      <a id="wd-update-assignment-title"
-         className="btn btn-primary float-end"
-         href={`${ASSIGNMENT_API_URL}/title/${assignment.title}`}>
+      <a
+        id="wd-update-assignment-title"
+        className="btn btn-primary float-end"
+        href={`${ASSIGNMENT_API_URL}/title/${assignment.title}`}
+      >
         Update Title
       </a>
-      <input className="form-control w-75" id="wd-assignment-title"
-        value={assignment.title} onChange={(e) =>
-          setAssignment({ ...assignment, title: e.target.value })}/>
-      <hr />
-      <h4>Retrieving Objects</h4>
-      <a id="wd-retrieve-assignments" className="btn btn-primary"
-         href={`${REMOTE_SERVER}/lab5/assignment`}>
-        Get Assignment
-      </a><hr/>
-      <h4>Retrieving Properties</h4>
-      <a id="wd-retrieve-assignment-title" className="btn btn-primary"
-         href={`${REMOTE_SERVER}/lab5/assignment/title`}>
-        Get Title
-      </a><hr/>
-      <h4>Retrieving Module Properties</h4>
-      <a id="wd-retrieve-module-name" className="btn btn-primary"
-         href={`${REMOTE_SERVER}/lab5/module/name`}>
-        Get Module Name
-      </a><hr/>
-      <h4>Modifying Module Properties</h4>
-      <a id="wd-update-module-name" className="btn btn-primary float-end"
-         href={`${ASSIGNMENT_API_URL}/name/${module.name}`}>
+      <FormControl
+        className="w-75"
+        id="wd-assignment-title"
+        defaultValue={assignment.title}
+        onChange={(e) =>
+          setAssignment({ ...assignment, title: e.target.value })
+        }
+      />
+
+      <a
+        id="wd-update-module-name"
+        className="btn btn-primary float-end"
+        href={`${MODULE_API_URL}/name/${module.name}`}
+      >
         Update Module Name
       </a>
-      <input className="form-control w-75" value={module.name} onChange={(e) => 
-        setModule({ ...module, name: e.target.value })}/>
-      <br/>
-      <a id="wd-update-score" className="btn btn-primary float-end"
-         href={`${ASSIGNMENT_API_URL}/score/${assignment.score}`}>
+      <FormControl
+        className="w-75"
+        id="wd-module-name"
+        defaultValue={module.name}
+        onChange={(e) => setModule({ ...module, name: e.target.value })}
+      />
+
+      <a
+        id="wd-update-module-description"
+        className="btn btn-primary float-end"
+        href={`${MODULE_API_URL}/description/${module.description}`}
+      >
+        Update Module Description
+      </a>
+      <FormControl
+        className="w-75"
+        id="wd-module-description"
+        defaultValue={module.description}
+        onChange={(e) =>
+          setModule({ ...module, description: e.target.value })
+        }
+      />
+
+      <a
+        id="wd-update-assignment-score"
+        className="btn btn-primary float-end"
+        href={`${ASSIGNMENT_API_URL}/score/${assignment.score}`}
+      >
         Update Score
       </a>
-      <input type="number" className="form-control w-75" value={assignment.score} onChange={(e) => 
-        setAssignment({ ...assignment, score: parseInt(e.target.value) })}/>
-      <br/>
-      <a id="wd-update-status" className="btn btn-primary float-end"
-         href={`${ASSIGNMENT_API_URL}/completed/${assignment.completed}`}>
-        Update Completed Status
+      <FormControl
+        type="number"
+        className="w-75"
+        id="wd-assignment-score"
+        defaultValue={assignment.score}
+        onChange={(e) =>
+          setAssignment({ ...assignment, score: parseInt(e.target.value) })
+        }
+      />
+
+      <a
+        id="wd-update-assignment-completed"
+        className="btn btn-primary float-end"
+        href={`${ASSIGNMENT_API_URL}/completed/${assignment.completed}`}
+      >
+        Update Completed
       </a>
-      <input type="checkbox" checked={assignment.completed} onChange={(e) => 
-        setAssignment({ ...assignment, completed: e.target.checked })}/>
-      <br/><br/>
-      <a id="wd-update-description" className="btn btn-primary float-end" 
-         href={`${MODULE_API_URL}/description/${encodeURIComponent(module.description)}`}>
-        Update Description
-      </a>
-      <input type="text" className="form-control w-75 " value={module.description} onChange={(e) => 
-        setModule({ ...module, description: e.target.value })}/>
-      <hr/>
+      <Form.Check
+        type="checkbox"
+        id="wd-assignment-completed"
+        defaultChecked={assignment.completed}
+        onChange={(e) =>
+          setAssignment({ ...assignment, completed: e.target.checked })
+        }
+      />
+      <hr />
     </div>
-);}
+  );
+}
