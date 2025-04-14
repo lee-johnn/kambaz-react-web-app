@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import CourseNavigation from "./Navigation";
 import { Navigate, Route, Routes, useParams, useLocation } from "react-router";
 import Modules from "./Modules";
@@ -10,17 +9,14 @@ import PeopleTable from "./People/Table";
 import { useSelector } from "react-redux";
 
 export default function Courses({ courses }: { courses: any[] }) {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
   const { cid } = useParams();
   const { pathname } = useLocation();
+  const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const course = courses.find((course) => course._id === cid);
 
   const isUserEnrolled = (course: any) =>
-    enrollments.find(
-      (enrollment: any) =>
-        enrollment.user === currentUser._id && enrollment.course === course._id
-    );
+    enrollments.find((enrollment: any) => enrollment.course === course._id && enrollment?.user === currentUser?._id);
 
   return (
     <>

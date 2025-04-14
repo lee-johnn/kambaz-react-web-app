@@ -1,12 +1,11 @@
 import { IoEllipsisVertical } from "react-icons/io5";
 import GreenCheckmark from "../Modules/GreenCheckmark";
-import { useDispatch } from "react-redux";
 import { FaTrash } from "react-icons/fa";
-import { deleteAssignment } from "./reducer";
 
-export default function AssignmentControlButtons({ assignmentId }: {assignmentId: any;}) {
-    const dispatch = useDispatch();
-
+export default function AssignmentControlButtons({ assignmentId, deleteAssignment }: {
+    assignmentId: string; 
+    deleteAssignment: (assignmentId: string) => void
+}) {
     return (
         <div className="float-end">
             <GreenCheckmark />
@@ -17,7 +16,7 @@ export default function AssignmentControlButtons({ assignmentId }: {assignmentId
                     "Are you sure you want to delete this assignment?"
                 );
                 if (check) {
-                    dispatch(deleteAssignment(assignmentId));
+                    deleteAssignment(assignmentId);
                 }
             }}/>
         </div>

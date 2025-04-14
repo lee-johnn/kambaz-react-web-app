@@ -24,7 +24,7 @@ export default function ModulesControls({
 
   return (
     <div id="wd-modules-controls" className="text-nowrap">
-      {currentUser.role === "FACULTY" && (
+      {(currentUser.role === "FACULTY" || currentUser.role === "ADMIN") && (
         <Button
           variant="danger"
           size="lg"
