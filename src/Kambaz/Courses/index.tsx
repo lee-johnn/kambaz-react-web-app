@@ -6,21 +6,50 @@ import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
 import { FaAlignJustify } from "react-icons/fa";
 import PeopleTable from "./People/Table";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import * as courseClient from "./client";
+import * as enrollmentsClient from "../client";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
   const { pathname } = useLocation();
-  const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [users, setUsers] = useState<any[]>([]);
   const course = courses.find((course) => course._id === cid);
+  const [isEnrolled, setIsEnrolled] = useState<boolean>(true);
 
-  const isUserEnrolled = (course: any) =>
-    enrollments.find((enrollment: any) => enrollment.course === course._id && enrollment?.user === currentUser?._id);
+  const isUserEnrolled = async (courseId: any) => {
+    if (currentUser?.role === "ADMIN") {
+      return true;
+    }
+    try {
+      const enrollment = await enrollmentsClient.findEnrollmentForUser(
+        courseId
+      );
+      setIsEnrolled(enrollment.data ? true : false);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const users = await courseClient.findUsersForCourse(cid as string);
+      setUsers(users);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchUsers();
+    isUserEnrolled(cid);
+  }, [cid]);
 
   return (
     <>
-      {isUserEnrolled(course) ? (
+      {isEnrolled ? (
         <div id="wd-courses">
           <h2 className="text-danger">
             <FaAlignJustify className="me-4 fs-4 mb-1" />
@@ -38,7 +67,8 @@ export default function Courses({ courses }: { courses: any[] }) {
                 <Route path="Modules" element={<Modules />} />
                 <Route path="Assignments" element={<Assignments />} />
                 <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-                <Route path="People" element={<PeopleTable />} />
+                <Route path="People" element={<PeopleTable users={users} />} />
+                <Route path="People/:uid" element={<PeopleTable users={users} />} />
               </Routes>
             </div>
           </div>

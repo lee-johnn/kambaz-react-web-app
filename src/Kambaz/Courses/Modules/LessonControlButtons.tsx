@@ -11,7 +11,7 @@ export default function LessonControlButtons({
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   return (
     <div className="float-end">
-      {currentUser.role === "FACULTY" && showTrash && (
+      {(currentUser.role === "FACULTY" || currentUser.role === "ADMIN") && showTrash && (
         <FaTrash className="text-danger me-2 mb-1" onClick={onDelete} />
       )}
       <GreenCheckmark />

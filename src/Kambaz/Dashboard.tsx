@@ -1,12 +1,7 @@
 import { Link } from "react-router-dom";
 import { Row, Col, Card, Button } from "react-bootstrap";
 
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-
-import { addEnrollment, deleteEnrollment } from "./reducer";
-import { v4 as uuidv4 } from "uuid";
-import * as userClient from "./Account/client";
+import { useSelector } from "react-redux";
 
 export default function Dashboard({
   courses,
@@ -15,6 +10,9 @@ export default function Dashboard({
   addNewCourse,
   deleteCourse,
   updateCourse,
+  enrolling,
+  setEnrolling,
+  updateEnrollment,
 }: {
   courses: any[];
   course: any;
@@ -22,61 +20,24 @@ export default function Dashboard({
   addNewCourse: () => void;
   deleteCourse: (course: any) => void;
   updateCourse: () => void;
+  enrolling: boolean;
+  setEnrolling: (enrolling: boolean) => void;
+  updateEnrollment: (courseId: string, enrolled: boolean) => void;
 }) {
-  const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const { enrollments } = useSelector((state: any) => state.enrollmentsReducer);
-  const [showAllCourses, setShowAllCourses] = useState(false);
-  const [userCourses, setUserCourses] = useState<any[]>([]);
-  const [myCourses, setMyCourses] = useState<any[]>([]);
-
-  const toggleEnrollment = async (course: any) => {
-    const enrollment = enrollments.find(
-      (enrollment: any) => enrollment.course === course._id && enrollment.user === currentUser._id
-    );
-    if (enrollment) {
-      await userClient.deleteEnrollment(enrollment._id);
-      dispatch(deleteEnrollment({ enrollmentId: enrollment._id }));
-    } else {
-      const newId = uuidv4();
-      await userClient.addEnrollment({
-        _id: newId,
-        user: currentUser._id,
-        course: course._id,
-      });
-      dispatch(
-        addEnrollment({
-          _id: newId,
-          user: currentUser._id,
-          course: course._id,
-        })
-      );
-    }
-  };
-
-  const fetchMyCourses = async () => {
-    try {
-      const myCourses = await userClient.findMyCourses();
-      setMyCourses(myCourses);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const isUserEnrolled = (course: any) =>
-    myCourses.find((myCourse: any) => myCourse._id === course._id);
-
-  useEffect(() => {
-    fetchMyCourses();
-  }, [currentUser, courses, enrollments]);
-  useEffect(() => {
-    setUserCourses(showAllCourses ? courses : myCourses);
-  }, [showAllCourses, courses, myCourses]);
 
   return (
     <div id="wd-dashboard">
       <h1 id="wd-dashboard-title">Dashboard</h1> <hr />
-      {currentUser.role === "FACULTY" && (
+      {currentUser.role === "STUDENT" && (
+        <button
+          onClick={() => setEnrolling(!enrolling)}
+          className="float-end btn btn-primary"
+        >
+          {enrolling ? "My Courses" : "All Courses"}
+        </button>
+      )}
+      {(currentUser.role === "FACULTY" || currentUser.role === "ADMIN") && (
         <>
           <h5>
             New Course
@@ -111,20 +72,11 @@ export default function Dashboard({
           <hr />
         </>
       )}
-      {currentUser.role === "STUDENT" && (
-        <div className="d-flex justify-content-end">
-          <Button onClick={() => setShowAllCourses(!showAllCourses)}>
-            Enrollments
-          </Button>
-        </div>
-      )}
-      <h2 id="wd-dashboard-published">
-        Published Courses ({userCourses.length})
-      </h2>
+      <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
       <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {userCourses.map((course) => (
+          {courses.map((course) => (
             <Col
               className="wd-dashboard-course"
               style={{ width: "300px" }}
@@ -152,7 +104,8 @@ export default function Dashboard({
                       {course.description}
                     </Card.Text>
                     <Button variant="primary"> Go </Button>
-                    {currentUser.role === "FACULTY" && (
+                    {(currentUser.role === "FACULTY" ||
+                      currentUser.role === "ADMIN") && (
                       <>
                         <Button
                           onClick={(event) => {
@@ -176,18 +129,18 @@ export default function Dashboard({
                         </Button>
                       </>
                     )}
-                    {currentUser.role === "STUDENT" && (
-                      <Button
-                        className={`btn-${
-                          isUserEnrolled(course) ? "danger" : "success"
-                        } btn float-end`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleEnrollment(course);
+                    {currentUser.role === "STUDENT" && enrolling && (
+                      <button
+                        onClick={(event) => {
+                          event.preventDefault();
+                          updateEnrollment(course._id, !course.enrolled);
                         }}
+                        className={`btn ${
+                          course.enrolled ? "btn-danger" : "btn-success"
+                        } float-end`}
                       >
-                        {isUserEnrolled(course) ? "Unenroll" : "Enroll"}
-                      </Button>
+                        {course.enrolled ? "Unenroll" : "Enroll"}
+                      </button>
                     )}
                   </Card.Body>
                 </Link>
