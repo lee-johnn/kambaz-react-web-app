@@ -10,6 +10,10 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import * as courseClient from "./client";
 import * as enrollmentsClient from "../client";
+import Quizzes from "./Quizzes";
+import Editor from "./Quizzes/Editor";
+import Details from "./Quizzes/Details";
+
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -67,6 +71,9 @@ export default function Courses({ courses }: { courses: any[] }) {
                 <Route path="Modules" element={<Modules />} />
                 <Route path="Assignments" element={<Assignments />} />
                 <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+                <Route path="Quizzes" element={<Quizzes/>}/>
+                <Route path="Quizzes/:qid/edit" element={<Editor/>}/>
+                <Route path="Quizzes/:qid/view" element={<Details/>}/>
                 <Route path="People" element={<PeopleTable users={users} />} />
                 <Route path="People/:uid" element={<PeopleTable users={users} />} />
               </Routes>
