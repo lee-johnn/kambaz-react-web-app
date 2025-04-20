@@ -13,7 +13,7 @@ import * as enrollmentsClient from "../client";
 import Quizzes from "./Quizzes";
 import Editor from "./Quizzes/Editor";
 import Details from "./Quizzes/Details";
-
+import QuizPreview from "./Quizzes/Preview";
 
 export default function Courses({ courses }: { courses: any[] }) {
   const { cid } = useParams();
@@ -35,7 +35,7 @@ export default function Courses({ courses }: { courses: any[] }) {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -45,7 +45,7 @@ export default function Courses({ courses }: { courses: any[] }) {
       console.error(error);
     }
   };
-  
+
   useEffect(() => {
     fetchUsers();
     isUserEnrolled(cid);
@@ -71,11 +71,15 @@ export default function Courses({ courses }: { courses: any[] }) {
                 <Route path="Modules" element={<Modules />} />
                 <Route path="Assignments" element={<Assignments />} />
                 <Route path="Assignments/:aid" element={<AssignmentEditor />} />
-                <Route path="Quizzes" element={<Quizzes/>}/>
-                <Route path="Quizzes/:qid/edit" element={<Editor/>}/>
-                <Route path="Quizzes/:qid/view" element={<Details/>}/>
+                <Route path="Quizzes" element={<Quizzes />} />
+                <Route path="Quizzes/:qid/edit" element={<Editor />} />
+                <Route path="Quizzes/:qid/view" element={<Details />} />
+                <Route path="Quizzes/:qid/preview" element={<QuizPreview />} />
                 <Route path="People" element={<PeopleTable users={users} />} />
-                <Route path="People/:uid" element={<PeopleTable users={users} />} />
+                <Route
+                  path="People/:uid"
+                  element={<PeopleTable users={users} />}
+                />
               </Routes>
             </div>
           </div>
