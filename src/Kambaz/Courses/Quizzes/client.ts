@@ -62,3 +62,18 @@ export const deleteQuestion = async (questionId: string) => {
   );
   return data;
 };
+
+export const submitQuizAttempt = async (quizId: any, attempt: any) => {
+  const response = await axiosWithCredentials.post(
+    `${QUIZZES_API}/quizzes/${quizId}/${attempt._id}/submit`,
+    attempt
+  );
+  return response.data;
+};
+
+export const findQuizAttempts = async (quizId: string) => {
+  const response = await axiosWithCredentials.get(
+    `${QUIZZES_API}/quizzes/${quizId}/attempts`
+  );
+  return response.data;
+};

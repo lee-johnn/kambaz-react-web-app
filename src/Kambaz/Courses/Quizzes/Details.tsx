@@ -1,14 +1,20 @@
 import { Button, Col, Row, Table } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { FaPencil } from "react-icons/fa6";
 import { useSelector } from "react-redux";
+import * as quizClient from "./client";
 
 export default function QuizDetails() {
   const { cid, qid } = useParams();
   const navigate = useNavigate();
   const now = new Date().toISOString().slice(0, 16);
+
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const isStudent = currentUser?.role === "STUDENT";
+
+  const [questionCount, setQuestionCount] = useState(0);
 
   const formatDueDate = (dateTime: string) => {
     if (!dateTime) return "";
@@ -55,6 +61,7 @@ export default function QuizDetails() {
     timeLimit: quiz?.timeLimit || 20,
     multipleAttempts: quiz?.multipleAttempts || false,
     allowedAttempts: quiz?.allowedAttempts || 1,
+    maxAttempts: quiz?.maxAttempts || 1,
     showCorrectAnswers: quiz?.showCorrectAnswers || false,
     accessCode: quiz?.accessCode || "",
     oneQuestionAtATime: quiz?.oneQuestionAtATime || true,
@@ -65,145 +72,220 @@ export default function QuizDetails() {
     untilDate: formatDateForInput(quiz?.untilDate || now),
   });
 
+  useEffect(() => {
+    const getQuestions = async () => {
+      try {
+        if (qid) {
+          const questions = await quizClient.findQuestionsForQuiz(qid);
+          setQuestionCount(questions.length);
+        } else {
+          console.error("Quiz ID is undefined");
+          setQuestionCount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+        setQuestionCount(0);
+      }
+    };
+
+    getQuestions();
+  }, [quizData._id]);
+
   return (
     <div className="m-4">
-      <div className="mb-3 d-flex justify-content-center">
-        <Button
-          variant="secondary"
-          size="lg"
-          className="me-1"
-          onClick={() => {
-            navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/preview`);
-            //     THIS NEEDS CHANGES
-          }}
-        >
-          Preview
-        </Button>
-        <Button
-          variant="secondary"
-          size="lg"
-          className="me-1"
-          onClick={() => {
-            navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/edit`);
-          }}
-        >
-          <FaPencil /> Edit
-        </Button>
-      </div>
+      {isStudent ? (
+        <div>
+          <div className="border rounded p-3 mb-4">
+            <h3>
+              <strong>{quizData.title}</strong>
+            </h3>
 
-      <div className="border rounded p-3 mb-4">
-        <h3>
-          <strong>{quizData.title}</strong>
-        </h3>
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Quiz Type:
-          </Col>
-          <Col sm={8}>
-            {quizData.quizType === "Graded Quiz"
-              ? "Graded Quiz"
-              : quizData.quizType}
-          </Col>
-        </Row>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Due</th>
+                  <th>Available</th>
+                  <th>Points</th>
+                  <th>Questions</th>
+                  <th>Time Limit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{formatDueDate(quizData.dueDate)}</td>
+                  <td>
+                    {formatDueDate(quizData.availableDate)} -{" "}
+                    {formatDueDate(quizData.untilDate)}
+                  </td>
+                  <td>{quizData.totalPoints}</td>
+                  <td>{questionCount}</td>
+                  <td>{quizData.timeLimit} min</td>
+                </tr>
+              </tbody>
+              <thead>
+                <tr>
+                  <th>Allowed Attempts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{quizData.allowedAttempts}</td>
+                </tr>
+              </tbody>
+            </Table>
+            <div className="my-3 d-flex justify-content-center">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() =>
+                  navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt`)
+                }
+              >
+                Start Quiz
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="mb-3 d-flex justify-content-center">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="me-1"
+              onClick={() => {
+                navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/preview`);
+              }}
+            >
+              Preview
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="me-1"
+              onClick={() => {
+                navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/edit`);
+              }}
+            >
+              <FaPencil /> Edit
+            </Button>
+          </div>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Points:
-          </Col>
-          <Col sm={8}>{quizData.totalPoints}</Col>
-        </Row>
+          <div className="border rounded p-3 mb-4">
+            <h3>
+              <strong>{quizData.title}</strong>
+            </h3>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Quiz Type:
+              </Col>
+              <Col sm={8}>
+                {quizData.quizType === "Graded Quiz"
+                  ? "Graded Quiz"
+                  : quizData.quizType}
+              </Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Assignment Group:
-          </Col>
-          <Col sm={8}>{quizData.assignmentGroup}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Points:
+              </Col>
+              <Col sm={8}>{quizData.totalPoints}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Shuffle Answers:
-          </Col>
-          <Col sm={8}>{quizData.shuffleAnswers ? "Yes" : "No"}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Assignment Group:
+              </Col>
+              <Col sm={8}>{quizData.assignmentGroup}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Time Limit:
-          </Col>
-          <Col sm={8}>{quizData.timeLimit} Minutes</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Shuffle Answers:
+              </Col>
+              <Col sm={8}>{quizData.shuffleAnswers ? "Yes" : "No"}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Multiple Attempts:
-          </Col>
-          <Col sm={8}>{quizData.multipleAttempts ? "Yes" : "No"}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Time Limit:
+              </Col>
+              <Col sm={8}>{quizData.timeLimit} Minutes</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Attempt Count:
-          </Col>
-          <Col sm={8}>{quizData.allowedAttempts}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Multiple Attempts:
+              </Col>
+              <Col sm={8}>{quizData.multipleAttempts ? "Yes" : "No"}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Access Code:
-          </Col>
-          <Col sm={8}>{quizData.accessCode}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Attempt Count:
+              </Col>
+              <Col sm={8}>{quizData.allowedAttempts}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Show Correct Answers:
-          </Col>
-          <Col sm={8}>{quizData.showCorrectAnswers ? "Yes" : "No"}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Access Code:
+              </Col>
+              <Col sm={8}>{quizData.accessCode}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            One Question at a Time:
-          </Col>
-          <Col sm={8}>{quizData.oneQuestionAtATime ? "Yes" : "No"}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Show Correct Answers:
+              </Col>
+              <Col sm={8}>{quizData.showCorrectAnswers ? "Yes" : "No"}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Webcam Required:
-          </Col>
-          <Col sm={8}>{quizData.webcamRequired ? "Yes" : "No"}</Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                One Question at a Time:
+              </Col>
+              <Col sm={8}>{quizData.oneQuestionAtATime ? "Yes" : "No"}</Col>
+            </Row>
 
-        <Row className="mb-3">
-          <Col sm={4} className="text-end fw-bold">
-            Lock Questions After Answering:
-          </Col>
-          <Col sm={8}>
-            {quizData.lockQuestionsAfterAnswering ? "Yes" : "No"}
-          </Col>
-        </Row>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Webcam Required:
+              </Col>
+              <Col sm={8}>{quizData.webcamRequired ? "Yes" : "No"}</Col>
+            </Row>
 
-        <Table>
-          <thead>
-            <tr>
-              <th>Due</th>
-              <th>For</th>
-              <th>Available from</th>
-              <th>Until</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{formatDueDate(quizData.dueDate)}</td>
-              <td>Everyone</td>
-              <td>{formatDueDate(quizData.availableDate)}</td>
-              <td>{formatDueDate(quizData.untilDate)}</td>
-            </tr>
-          </tbody>
-        </Table>
-      </div>
+            <Row className="mb-3">
+              <Col sm={4} className="text-end fw-bold">
+                Lock Questions After Answering:
+              </Col>
+              <Col sm={8}>
+                {quizData.lockQuestionsAfterAnswering ? "Yes" : "No"}
+              </Col>
+            </Row>
+
+            <Table>
+              <thead>
+                <tr>
+                  <th>Due</th>
+                  <th>For</th>
+                  <th>Available from</th>
+                  <th>Until</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{formatDueDate(quizData.dueDate)}</td>
+                  <td>Everyone</td>
+                  <td>{formatDueDate(quizData.availableDate)}</td>
+                  <td>{formatDueDate(quizData.untilDate)}</td>
+                </tr>
+              </tbody>
+            </Table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -3,12 +3,11 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setIsPreviewMode } from "./quizAttemptReducer";
 
-export default function Preview() {
+export default function Attempt() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setIsPreviewMode(true));
-    // Clean up when component unmounts
+    dispatch(setIsPreviewMode(false));
     return () => {
       dispatch(setIsPreviewMode(false));
     };
