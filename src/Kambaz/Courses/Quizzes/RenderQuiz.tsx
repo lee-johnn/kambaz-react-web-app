@@ -1,9 +1,9 @@
 import * as courseClient from "../client";
 import * as quizClient from "./client";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Container, Button, Card } from "react-bootstrap";
+import { Button, Card } from "react-bootstrap";
 import { v4 as uuidv4 } from "uuid";
 import {
   setAnswerForQuestion,
@@ -15,7 +15,6 @@ import AttemptResult from "./AttemptResult";
 export default function RenderQuiz() {
   const { cid, qid } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [quiz, setQuiz] = useState<any>(null);
 
   // const quiz = useSelector((state: any) =>
