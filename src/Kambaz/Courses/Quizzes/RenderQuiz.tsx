@@ -1,26 +1,30 @@
 import * as courseClient from "../client";
 import * as quizClient from "./client";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Card } from "react-bootstrap";
-import { v4 as uuidv4 } from "uuid";
 import {
   setAnswerForQuestion,
   submitQuiz,
   showResultsScreen,
 } from "./quizAttemptReducer";
 import AttemptResult from "./AttemptResult";
+import store from "../../store";
+import { v4 as uuidv4 } from "uuid";
 
 export default function RenderQuiz() {
   const { cid, qid } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [quiz, setQuiz] = useState<any>(null);
+  const startTime = new Date();
+
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   // const quiz = useSelector((state: any) =>
   //   state.quizzesReducer.quizzes.find((quiz: any) => quiz._id === qid)
   // );
-
   const { userAnswers, isSubmitted, isPreviewMode, showResults, score } =
     useSelector((state: any) => state.quizAttemptReducer);
 
@@ -83,7 +87,6 @@ export default function RenderQuiz() {
   const handleSubmitQuiz = () => {
     // First submit the quiz to calculate score
     dispatch(submitQuiz(questions));
-
     // If in student mode, save to database
     if (!isPreviewMode) {
       submitToDatabase();
@@ -93,25 +96,37 @@ export default function RenderQuiz() {
     dispatch(showResultsScreen());
   };
 
-  const submitToDatabase = () => {
-    // Create formatted attempt object from userAnswers
-    const attemptData = {
-      _id: uuidv4(),
-      quizId: qid,
-      userId: "current-user-id", // Get from auth
-      attemptNumber: 1,
-      score: score.points,
-      totalPoints: score.total,
-      startTime: new Date(), // Store quiz start time when quiz loads
-      endTime: new Date(),
-      answers: Object.entries(userAnswers).map(([questionId, answer]) => ({
-        questionId,
-        answer,
-      })),
-    };
+  const submitToDatabase = async () => {
+    const currentScore = store.getState().quizAttemptReducer.score;
 
-    console.log("Submitting student answers to database:", attemptData);
-    quizClient.submitQuizAttempt(qid, attemptData);
+    // Create formatted attempt object from userAnswers
+    try {
+      const attemptData = {
+        _id: uuidv4(),
+        quizId: qid,
+        userId: currentUser._id, // Get from auth
+        score: currentScore.points,
+        totalPoints: currentScore.total,
+        startTime: startTime, // Store quiz start time when quiz loads
+        endTime: new Date(),
+        answers: Object.entries(userAnswers).map(([questionId, answer]) => ({
+          questionId,
+          answer,
+        })),
+      };
+
+      console.log("Submitting student answers to database:", attemptData);
+      const result = await quizClient.submitQuizAttempt(qid, attemptData);
+      console.log("Submission successful:", result);
+      navigate(
+        `/Kambaz/Courses/${cid}/quizzes/${qid}/${currentUser._id}/attempt/${attemptData._id}/results`
+      );
+      return result;
+    } catch (error) {
+      console.error("Error submitting quiz attempt:", error);
+      // Handle the error appropriately (show user message, etc.)
+      throw error;
+    }
   };
 
   const QuestionHeader = ({
@@ -294,7 +309,7 @@ export default function RenderQuiz() {
       {isSubmitted && showResults ? (
         <div>
           {quiz && questions && questions.length > 0 ? (
-            <AttemptResult quiz={quiz} />
+            <AttemptResult />
           ) : (
             <p>Loading quiz results...</p>
           )}

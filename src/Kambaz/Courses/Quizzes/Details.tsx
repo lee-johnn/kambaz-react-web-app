@@ -15,6 +15,7 @@ export default function QuizDetails() {
   const isStudent = currentUser?.role === "STUDENT";
 
   const [questionCount, setQuestionCount] = useState(0);
+  const [attempts, setAttempts] = useState([]);
 
   const formatDueDate = (dateTime: string) => {
     if (!dateTime) return "";
@@ -44,6 +45,25 @@ export default function QuizDetails() {
     }
   };
 
+  const formatDuration = (durationMs: any) => {
+    if (!durationMs || isNaN(durationMs)) return "N/A";
+
+    // Convert to seconds
+    let totalSeconds = Math.floor(durationMs / 1000);
+
+    // Calculate hours, minutes, seconds
+    const hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    const minutes = Math.floor(totalSeconds / 60);
+
+    // Return formatted string
+    if (hours > 0) {
+      return `${hours} hours`;
+    } else {
+      return `${minutes} minutes`;
+    }
+  };
+
   const quiz = useSelector((state: any) => state.quizzesReducer.quizzes).find(
     (quiz: any) => quiz._id === qid
   );
@@ -60,8 +80,7 @@ export default function QuizDetails() {
     hasTimeLimit: quiz?.hasTimeLimit || true,
     timeLimit: quiz?.timeLimit || 20,
     multipleAttempts: quiz?.multipleAttempts || false,
-    allowedAttempts: quiz?.allowedAttempts || 1,
-    maxAttempts: quiz?.maxAttempts || 1,
+    allowedAttempts: quiz?.maxAttempts || 1,
     showCorrectAnswers: quiz?.showCorrectAnswers || false,
     accessCode: quiz?.accessCode || "",
     oneQuestionAtATime: quiz?.oneQuestionAtATime || true,
@@ -90,6 +109,84 @@ export default function QuizDetails() {
 
     getQuestions();
   }, [quizData._id]);
+
+  const getQuizAttempts = async () => {
+    try {
+      if (qid) {
+        console.log("Fetching quiz attempts for quiz ID:", qid);
+        const quizAttempts = await quizClient.findQuizAttempts(
+          qid,
+          currentUser._id
+        );
+        console.log("Quiz Attempts:", quizAttempts);
+        return quizAttempts;
+      } else {
+        console.error("Quiz ID is undefined");
+      }
+    } catch (error) {
+      console.error("Error fetching quiz attempts:", error);
+    }
+    return [];
+  };
+
+  useEffect(() => {
+    const fetchAttempts = async () => {
+      try {
+        const data = await getQuizAttempts();
+        setAttempts(data);
+      } catch (error) {
+        console.error("Error fetching attempts:", error);
+      }
+    };
+
+    fetchAttempts();
+  }, [qid, currentUser._id]); // Dependencies
+
+  const renderAttempts = () => {
+    return (
+      <>
+        {" "}
+        <h4>Attempt History</h4>
+        <Table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Attempt</th>
+              <th>Time</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attempts.map((attempt: any) => {
+              // Calculate duration in milliseconds
+              const startTime = new Date(attempt.startTime).getTime();
+              const endTime = new Date(attempt.endTime).getTime();
+              const durationMs = endTime - startTime;
+
+              return (
+                <tr key={attempt._id}>
+                  <td></td>
+                  <td
+                    className="text-primary cursor-pointer"
+                    onClick={() =>
+                      navigate(
+                        `/Kambaz/Courses/${cid}/Quizzes/${qid}/${currentUser._id}/attempt/${attempt._id}/results`
+                      )
+                    }
+                    style={{ cursor: "pointer", textDecoration: "underline" }}
+                  >
+                    Attempt {attempt.attemptNumber}
+                  </td>
+                  <td>{formatDuration(durationMs)}</td>
+                  <td>{attempt.score}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </>
+    );
+  };
 
   return (
     <div className="m-4">
@@ -133,18 +230,23 @@ export default function QuizDetails() {
                 </tr>
               </tbody>
             </Table>
-            <div className="my-3 d-flex justify-content-center">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() =>
-                  navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt`)
-                }
-              >
-                Start Quiz
-              </Button>
-            </div>
+            {attempts.length < quizData.allowedAttempts && (
+              <div className="my-3 d-flex justify-content-center">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() =>
+                    navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt`)
+                  }
+                >
+                  Start Quiz
+                </Button>
+              </div>
+            )}
           </div>
+          {Array.isArray(attempts) && attempts.length > 0 && (
+            <div className="border rounded p-3 mb-4">{renderAttempts()}</div>
+          )}
         </div>
       ) : (
         <>

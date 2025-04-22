@@ -3,24 +3,74 @@ import { useParams } from "react-router-dom";
 import { Container, Alert, Card, Badge, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import * as quizClient from "./client";
+import * as courseClient from "../client";
 
-export default function AttemptResult({ quiz }: any) {
-  const { cid, qid } = useParams();
+export default function AttemptResult() {
+  const { cid, qid, uid, aid } = useParams();
   const [questions, setQuestion] = useState<any[]>([]);
+  const [attemptData, setAttemptData] = useState<any>({});
+  const [quiz, setQuiz] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  const fetchQuiz = async () => {
+    try {
+      if (cid && qid) {
+        const quiz = await courseClient.findQuizById(cid, qid);
+        console.log(quiz);
+        setQuiz(quiz);
+        return quiz;
+      }
+      throw new Error("Course ID or Quiz ID is undefined");
+    } catch (error) {
+      console.error("Error fetching quiz:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const { userAnswers, score, isPreviewMode } = useSelector(
     (state: any) => state.quizAttemptReducer
   );
 
+  const getAnswersFromUser = async () => {
+    try {
+      console.log("getAnswersFromUser", qid, uid, aid);
+      const attempt =
+        qid && uid && aid
+          ? await quizClient.findQuizAttemptById(qid, uid, aid)
+          : null;
+      console.log("user attempt", attempt);
+      setAttemptData(attempt);
+    } catch (error) {
+      console.error("Error fetching user answers:", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await fetchQuiz();
+      await getAnswersFromUser();
+      setLoading(false);
+    };
+
+    loadData();
+  }, []);
+
   // Get questions from API or Redux
   const fetchQuestions = async (_quizId: string) => {
-    if (!_quizId) {
-      throw new Error("Quiz ID is undefined");
+    try {
+      if (!_quizId) {
+        throw new Error("Quiz ID is undefined");
+      }
+      const questions = await quizClient.findQuestionsForQuiz(_quizId);
+      console.log(questions);
+      setQuestion(questions);
+      return questions;
+    } catch (error) {
+      console.error("Error fetching questions:", error);
     }
-    const questions = await quizClient.findQuestionsForQuiz(_quizId);
-    console.log(questions);
-    setQuestion(questions);
-    return questions;
   };
 
   useEffect(() => {
@@ -38,8 +88,8 @@ export default function AttemptResult({ quiz }: any) {
   //   return "danger";
   // };
 
-  const isCorrect = (question: any) => {
-    const userAnswer = userAnswers[question._id];
+  const isCorrect = (question: any, answers: any) => {
+    const userAnswer = answers[question._id];
 
     if (userAnswer === undefined) return false;
 
@@ -65,9 +115,10 @@ export default function AttemptResult({ quiz }: any) {
     }
   };
 
-  const renderAnswerFeedback = (question: any) => {
-    const userAnswer = userAnswers[question._id];
-    const correct = isCorrect(question);
+  const renderAnswerFeedback = (question: any, answers: any) => {
+    console.log("renderAnswerFeedback", question, answers);
+    const userAnswer = answers[question._id];
+    const correct = isCorrect(question, answers);
 
     switch (question.type) {
       case "MultipleChoice":
@@ -119,17 +170,70 @@ export default function AttemptResult({ quiz }: any) {
         return (
           <div className="mt-3">
             <div className="mb-2">
-              <strong>Your Answer:</strong> {userAnswer ? "True" : "False"}
+              <strong>Selected Answer:</strong>
             </div>
-            <div className="mb-2">
-              <strong>Correct Answer:</strong>{" "}
-              {question.correctAnswer ? "True" : "False"}
+            <div
+              className={`p-2 mb-2 rounded ${
+                userAnswer === true
+                  ? question.correctAnswer
+                    ? "bg-success bg-opacity-10"
+                    : "bg-danger bg-opacity-10"
+                  : question.correctAnswer === true
+                  ? "bg-success bg-opacity-10"
+                  : ""
+              }`}
+            >
+              <input
+                type="radio"
+                className="form-check-input"
+                name={`question-${question._id}-true`}
+                checked={userAnswer === true}
+                readOnly
+                style={{ opacity: 1 }}
+              />{" "}
+              True
+              {question.correctAnswer === true && (
+                <Badge bg="success" className="ms-2">
+                  Correct
+                </Badge>
+              )}
+              {userAnswer === true && !question.correctAnswer && (
+                <Badge bg="danger" className="ms-2">
+                  Incorrect
+                </Badge>
+              )}
             </div>
-            {correct ? (
-              <Badge bg="success">Correct</Badge>
-            ) : (
-              <Badge bg="danger">Incorrect</Badge>
-            )}
+            <div
+              className={`p-2 mb-2 rounded ${
+                userAnswer === false
+                  ? question.correctAnswer === false
+                    ? "bg-success bg-opacity-10"
+                    : "bg-danger bg-opacity-10"
+                  : question.correctAnswer === false
+                  ? "bg-success bg-opacity-10"
+                  : ""
+              }`}
+            >
+              <input
+                type="radio"
+                className="form-check-input"
+                name={`question-${question._id}-false`}
+                checked={userAnswer === false}
+                readOnly
+                style={{ opacity: 1 }}
+              />{" "}
+              False
+              {question.correctAnswer === false && (
+                <Badge bg="success" className="ms-2">
+                  Correct
+                </Badge>
+              )}
+              {userAnswer === false && question.correctAnswer !== false && (
+                <Badge bg="danger" className="ms-2">
+                  Incorrect
+                </Badge>
+              )}
+            </div>
           </div>
         );
 
@@ -156,11 +260,47 @@ export default function AttemptResult({ quiz }: any) {
     }
   };
 
-  return (
+  // Convert the array of answers to a map keyed by question ID
+  const processAnswers = (answers: any) => {
+    if (!answers || !Array.isArray(answers)) return {};
+
+    // Create an object where keys are question IDs and values are the user's answers
+    const answerMap: Record<string, any> = {};
+    answers.forEach((answer) => {
+      if (answer.questionId) {
+        answerMap[answer.questionId] = answer.answer;
+      }
+    });
+    return answerMap;
+  };
+
+  // Process the answers from database format to the format expected by our functions
+  const processedAnswers = processAnswers(attemptData?.answers);
+
+  if (loading) {
+    return (
+      <Container className="my-4">
+        <div className="text-center">
+          <p>Loading quiz results...</p>
+        </div>
+      </Container>
+    );
+  }
+
+  if (!quiz) {
+    return (
+      <Container className="my-4">
+        <Alert variant="danger">
+          Failed to load quiz. Please try again later.
+        </Alert>
+      </Container>
+    );
+  }
+
+  return isPreviewMode ? (
     <Container className="my-4">
       <h2 className="mb-3">{quiz.title} - Results</h2>
-
-      {isPreviewMode && (
+      {(currentUser?.role === "ADMIN" || currentUser?.role === "FACULTY") && (
         <Alert variant="danger" className="mb-4">
           <strong>Preview Mode</strong> - This is a preview of the quiz.
         </Alert>
@@ -170,33 +310,49 @@ export default function AttemptResult({ quiz }: any) {
         {score.total}
       </p>
       <h3 className="mb-3">Question Details</h3>
-
       {questions.map((question: any, index: number) => (
         <Card key={question._id} className="mb-3">
           <Card.Header className="d-flex justify-content-between align-items-center">
             <div>
               <strong>Question {index + 1}</strong> ({question.points} pts)
             </div>
-            <Badge bg={isCorrect(question) ? "success" : "danger"}>
-              {isCorrect(question) ? "Correct" : "Incorrect"}
+            <Badge bg={isCorrect(question, userAnswers) ? "success" : "danger"}>
+              {isCorrect(question, userAnswers) ? "Correct" : "Incorrect"}
             </Badge>
           </Card.Header>
           <Card.Body>
             <Card.Title>{question.question}</Card.Title>
-            {renderAnswerFeedback(question)}
+            {renderAnswerFeedback(question, userAnswers)}
           </Card.Body>
         </Card>
       ))}
-
-      <div className="d-flex justify-content-between mt-4 mb-5">
-        <Button variant="secondary" onClick={() => window.history.back()}>
-          Back to Quiz
-        </Button>
-
-        <Button variant="primary" onClick={() => window.location.reload()}>
-          Retake Quiz
-        </Button>
-      </div>
+    </Container>
+  ) : (
+    <Container className="my-4">
+      <h2 className="mb-3">{quiz.title} - Results</h2>
+      <p>
+        Score for this quiz: <strong>{attemptData.score}</strong> out of{" "}
+        {attemptData.totalPoints}
+      </p>
+      <h3 className="mb-3">Question Details</h3>
+      {questions.map((question: any, index: number) => (
+        <Card key={question._id} className="mb-3">
+          <Card.Header className="d-flex justify-content-between align-items-center">
+            <div>
+              <strong>Question {index + 1}</strong> ({question.points} pts)
+            </div>
+            <Badge
+              bg={isCorrect(question, processedAnswers) ? "success" : "danger"}
+            >
+              {isCorrect(question, processedAnswers) ? "Correct" : "Incorrect"}
+            </Badge>
+          </Card.Header>
+          <Card.Body>
+            <Card.Title>{question.question}</Card.Title>
+            {renderAnswerFeedback(question, processedAnswers)}
+          </Card.Body>
+        </Card>
+      ))}
     </Container>
   );
 }

@@ -65,15 +65,27 @@ export const deleteQuestion = async (questionId: string) => {
 
 export const submitQuizAttempt = async (quizId: any, attempt: any) => {
   const response = await axiosWithCredentials.post(
-    `${QUIZZES_API}/quizzes/${quizId}/${attempt._id}/submit`,
+    `${QUIZZES_API}/${quizId}/attempt/submit`,
     attempt
   );
   return response.data;
 };
 
-export const findQuizAttempts = async (quizId: string) => {
+export const findQuizAttempts = async (quizId: string, userId: string) => {
+  console.log("quizId", quizId);
   const response = await axiosWithCredentials.get(
-    `${QUIZZES_API}/quizzes/${quizId}/attempts`
+    `${QUIZZES_API}/${quizId}/${userId}/attempts`
+  );
+  return response.data;
+};
+
+export const findQuizAttemptById = async (
+  quizId: string,
+  userId: string,
+  attemptId: string
+) => {
+  const response = await axiosWithCredentials.get(
+    `${QUIZZES_API}/${quizId}/${userId}/attempt/${attemptId}/results`
   );
   return response.data;
 };
