@@ -10,6 +10,7 @@ import { GoTriangleDown } from "react-icons/go";
 import QuizControls from "./QuizControls.tsx";
 import GreenCheckmark from "../Modules/GreenCheckmark.tsx";
 import RedCheckmark from "./RedCheckmark.tsx";
+import { FaTrash } from "react-icons/fa";
 
 export default function Quizzes() {
   const { cid } = useParams();
@@ -139,6 +140,11 @@ export default function Quizzes() {
                     >
                       {quiz.published ? <GreenCheckmark /> : <RedCheckmark />}
                     </span>
+                    <FaTrash
+                      className="text-danger"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleDeleteQuiz(quiz._id)}
+                    />
                     <div className="dropdown">
                       <ul className="dropdown-menu">
                         <li>

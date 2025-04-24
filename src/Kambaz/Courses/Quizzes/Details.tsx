@@ -80,7 +80,7 @@ export default function QuizDetails() {
     hasTimeLimit: quiz?.hasTimeLimit || true,
     timeLimit: quiz?.timeLimit || 20,
     multipleAttempts: quiz?.multipleAttempts || false,
-    allowedAttempts: quiz?.maxAttempts || 1,
+    allowedAttempts: quiz?.maxAttempts || quiz?.allowedAttempts || 1,
     showCorrectAnswers: quiz?.showCorrectAnswers || false,
     accessCode: quiz?.accessCode || "",
     oneQuestionAtATime: quiz?.oneQuestionAtATime || true,
@@ -230,19 +230,20 @@ export default function QuizDetails() {
                 </tr>
               </tbody>
             </Table>
-            {attempts.length < quizData.allowedAttempts && (
-              <div className="my-3 d-flex justify-content-center">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={() =>
-                    navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt`)
-                  }
-                >
-                  Start Quiz
-                </Button>
-              </div>
-            )}
+            {attempts.length < quizData.allowedAttempts &&
+              new Date(quizData.dueDate) > new Date() && (
+                <div className="my-3 d-flex justify-content-center">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() =>
+                      navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt`)
+                    }
+                  >
+                    Start Quiz
+                  </Button>
+                </div>
+              )}
           </div>
           {Array.isArray(attempts) && attempts.length > 0 && (
             <div className="border rounded p-3 mb-4">{renderAttempts()}</div>

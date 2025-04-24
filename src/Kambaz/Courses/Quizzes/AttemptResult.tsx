@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { Container, Alert, Card, Badge, Button } from "react-bootstrap";
+import { Container, Alert, Card, Badge } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import * as quizClient from "./client";
 import * as courseClient from "../client";
@@ -79,15 +79,6 @@ export default function AttemptResult() {
     }
   }, [cid, qid]);
 
-  // const percentage = (score.points / score.total) * 100;
-  // const getScoreVariant = () => {
-  //   if (percentage >= 80) return "success";
-  //   if (percentage >= 70) return "primary";
-  //   if (percentage >= 60) return "info";
-  //   if (percentage >= 50) return "warning";
-  //   return "danger";
-  // };
-
   const isCorrect = (question: any, answers: any) => {
     const userAnswer = answers[question._id];
 
@@ -104,6 +95,13 @@ export default function AttemptResult() {
         return userAnswer === question.correctAnswer;
 
       case "FillInBlank":
+        // Add a check to ensure correctAnswers exists and is an array
+        if (
+          !question.correctAnswers ||
+          !Array.isArray(question.correctAnswers)
+        ) {
+          return false;
+        }
         const normalizedUserAnswer = String(userAnswer).trim().toLowerCase();
         const normalizedCorrectAnswers = question.correctAnswers.map(
           (ans: string) => ans.trim().toLowerCase()
@@ -245,7 +243,9 @@ export default function AttemptResult() {
             </div>
             <div className="mb-2">
               <strong>Accepted Answers:</strong>{" "}
-              {question.correctAnswers.join(", ")}
+              {question.correctAnswers && Array.isArray(question.correctAnswers)
+                ? question.correctAnswers.join(", ")
+                : "No correct answers provided"}
             </div>
             {correct ? (
               <Badge bg="success">Correct</Badge>

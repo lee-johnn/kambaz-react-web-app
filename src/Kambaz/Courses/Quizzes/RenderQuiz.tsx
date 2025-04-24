@@ -25,10 +25,9 @@ export default function RenderQuiz() {
   // const quiz = useSelector((state: any) =>
   //   state.quizzesReducer.quizzes.find((quiz: any) => quiz._id === qid)
   // );
-  const { userAnswers, isSubmitted, isPreviewMode, showResults, score } =
-    useSelector((state: any) => state.quizAttemptReducer);
-
-  console.log("isPreviewMode:", isPreviewMode);
+  const { userAnswers, isSubmitted, isPreviewMode, showResults } = useSelector(
+    (state: any) => state.quizAttemptReducer
+  );
 
   const isOneQuestionAtATime = quiz?.oneQuestionAtATime;
   const [questions, setQuestion] = useState([]);
@@ -87,8 +86,9 @@ export default function RenderQuiz() {
   const handleSubmitQuiz = () => {
     // First submit the quiz to calculate score
     dispatch(submitQuiz(questions));
+
     // If in student mode, save to database
-    if (!isPreviewMode) {
+    if (currentUser.role === "STUDENT") {
       submitToDatabase();
     }
 
@@ -339,7 +339,7 @@ export default function RenderQuiz() {
                       onClick={handleSubmitQuiz}
                       disabled={isSubmitted}
                     >
-                      Submit & See Results
+                      Submit
                     </Button>
                   </div>
                 </>

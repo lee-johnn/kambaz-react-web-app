@@ -7,9 +7,9 @@ export default function Attempt() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setIsPreviewMode(false));
+    dispatch(setIsPreviewMode(true));
     return () => {
-      dispatch(setIsPreviewMode(false));
+      dispatch(setIsPreviewMode(true));
     };
   }, [dispatch]);
 
