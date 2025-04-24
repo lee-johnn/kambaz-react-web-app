@@ -1,5 +1,5 @@
 import { ListGroup } from "react-bootstrap";
-import { FaRocket } from "react-icons/fa";
+import {  FaRocket } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuizzes } from "./reducer.ts";
@@ -96,7 +96,7 @@ export default function Quizzes() {
         <ListGroup.Item className="wd-quiz list-group-item p-0 fs-5">
           <div className="wd-title p-3 ps-2 bg-secondary">
             <GoTriangleDown className="me-2 fs-3" />
-            <b> Assignment Quizzes </b>
+            Assignment Quizzes
           </div>
           <ListGroup className="wd-quiz list-group rounded-0">
             {quizzes.map((quiz: any) => (

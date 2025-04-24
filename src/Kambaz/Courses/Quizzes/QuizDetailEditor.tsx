@@ -114,24 +114,44 @@ export default function QuizDetailEditor({ quizData, setQuizData }:
                         /> Minutes
                     </div>
                     <br />
-                    <div className="me-3  d-flex align-items-center">
+                    <div className="d-flex align-items-center">
                         <FormCheck
                             label="Allow Multiple Attempts"
                             className="me-3"
                             checked={quizData.multipleAttempts}
                             onChange={(e) => setQuizData({ ...quizData, multipleAttempts: e.target.checked })}
                         />
+                        {quizData.multipleAttempts && (
+                        <>
                         <FormControl
                             type="number"
                             className="me-2"
                             style={{ width: 'auto' }}
                             value={quizData.allowedAttempts}
                             onChange={(e) => setQuizData({ ...quizData, allowedAttempts: parseInt(e.target.value) })}
-                        /> Attempts
+                        />
+                        Attempts
+                        </>
+                    )}
                     </div>
                     <br />
                     <div className="me-3 d-flex align-items-center">
-                        <FormCheck
+                    <FormCheck
+                        label="Show Correct Answers"
+                        className="me-3"
+                        checked={quizData.showCorrectAnswers}
+                        onChange={(e) => setQuizData({ ...quizData, showCorrectAnswers: e.target.checked })}
+                    />
+                    {quizData.showCorrectAnswers && (
+                        <FormControl
+                            type="datetime-local"
+                            className="me-2"
+                            style={{ width: 'auto' }}
+                            value={quizData.showCorrectAnswersDate}
+                            onChange={(e) => setQuizData({ ...quizData, showCorrectAnswersDate: e.target.value })}
+                        />
+                    )}
+                        {/* <FormCheck
                             label="Show Correct Answers"
                             className="me-3"
                             checked={quizData.showCorrectAnswers}
@@ -143,7 +163,7 @@ export default function QuizDetailEditor({ quizData, setQuizData }:
                             style={{ width: 'auto' }}
                             value={quizData.showCorrectAnswersDate}
                             onChange={(e) => setQuizData({ ...quizData, showCorrectAnswersDate: e.target.value })}
-                        />
+                        /> */}
                     </div>
                     <br />
                     <div className="me-3 d-flex align-items-center">
@@ -212,7 +232,7 @@ export default function QuizDetailEditor({ quizData, setQuizData }:
                 </div>
                 <div className="wd-grid-col-two-thirds-page">
                     <div className="border-grey">
-                        <div className="pe-2">
+                        <div className="border rounded p-3 mb-4 pe-2">
                             <FormGroup>
                                 <Form.Label><strong> Assign to </strong></Form.Label>
                                 <InputGroup>
